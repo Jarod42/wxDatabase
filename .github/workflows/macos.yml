@@ -1,0 +1,59 @@
+name: macos
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/macos.yml'
+      - '**.cpp'
+      - '**.cpp'
+      - '**.h'
+      - '**.cmake'
+      - 'CMakeLists.txt'
+  pull_request:
+    paths:
+      - '.github/workflows/macos.yml'
+      - '**.cpp'
+      - '**.cpp'
+      - '**.h'
+      - '**.cmake'
+      - 'CMakeLists.txt'
+
+
+jobs:
+  macos:
+    runs-on: macos-latest
+
+    steps:
+
+    # Dependencies
+    - name: install wxDatabase's dependencies
+      run: |
+        # brew update && brew upgrade # fails somehow
+        brew install mariadb postgresql
+
+    # WxWidgets
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+          repository: wxWidgets/wxWidgets
+          ref: v3.2.5
+          submodules: recursive
+          path: wxWidgets
+
+    - name: Build and install wxWidgets
+      run: |
+        mkdir wxWidgets/build-release
+        cd wxWidgets/build-release
+        ../configure --enable-shared --enable-monolithic --with-osx_cocoa CXX='clang++ -std=c++17 -stdlib=libc++ -I../src/tiff/libtiff' CC=clang --disable-debug --disable-mediactrl --enable-stl
+        make -j$(sysctl -n hw.physicalcpu)
+        sudo make install
+
+    # wxDatabase
+    - name: Checkout wxDatabase
+      uses: actions/checkout@v4
+
+    - name: build wxDatabase
+      run: |
+        cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DENABLE_MYSQL=1 -DENABLE_SQLITE=1 -DENABLE_PGS=1 -DENABLE_TDS=0 -DENABLE_ODBC=0 -DBUILD_SAMPLE=1
+        cmake --build build -j $(nproc)
