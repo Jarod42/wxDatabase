@@ -131,7 +131,7 @@ wxString wxMysqlPreparedStatementResultSet::GetResultString(int nField)
   MYSQL_BIND* pResultBinding = GetResultBinding(nField);
   if (pResultBinding != NULL)
   {
-    if ((*(pResultBinding->is_null) == false))
+    if (*(pResultBinding->is_null) == false)
     {
       strValue = ConvertFromUnicodeStream((char*)(pResultBinding->buffer));
     }
@@ -145,7 +145,7 @@ long wxMysqlPreparedStatementResultSet::GetResultLong(int nField)
   MYSQL_BIND* pResultBinding = GetResultBinding(nField);
   if (pResultBinding != NULL)
   {
-    if ((*(pResultBinding->is_null) == false))
+    if (*(pResultBinding->is_null) == false)
     {
       int nType = pResultBinding->buffer_type;/*
       if (nType == MYSQL_TYPE_LONGLONG)
@@ -187,7 +187,7 @@ bool wxMysqlPreparedStatementResultSet::GetResultBool(int nField)
   MYSQL_BIND* pResultBinding = GetResultBinding(nField);
   if (pResultBinding != NULL)
   {
-    if ((*(pResultBinding->is_null) == false))
+    if (*(pResultBinding->is_null) == false)
       bValue = (*((int*)(pResultBinding->buffer)) != 0);
   }
   return bValue;
@@ -199,7 +199,7 @@ wxDateTime wxMysqlPreparedStatementResultSet::GetResultDate(int nField)
   MYSQL_BIND* pResultBinding = GetResultBinding(nField);
   if (pResultBinding != NULL)
   {
-    if ((*(pResultBinding->is_null) == false))
+    if (*(pResultBinding->is_null) == false)
     {
       MYSQL_TIME* pDate = (MYSQL_TIME*)(pResultBinding->buffer);
       returnDate.Set(pDate->day, wxDateTime::Month(pDate->month-1), pDate->year, pDate->hour, pDate->minute, pDate->second);
@@ -214,7 +214,7 @@ void* wxMysqlPreparedStatementResultSet::GetResultBlob(int nField, wxMemoryBuffe
   MYSQL_BIND* pResultBinding = GetResultBinding(nField);
   if (pResultBinding != NULL)
   {
-    if ((*(pResultBinding->is_null) == false))
+    if (*(pResultBinding->is_null) == false)
     {
       unsigned long nBufferLength = 0;
       if (pResultBinding->length)
@@ -257,7 +257,7 @@ double wxMysqlPreparedStatementResultSet::GetResultDouble(int nField)
   MYSQL_BIND* pResultBinding = GetResultBinding(nField);
   if (pResultBinding != NULL)
   {
-    if ((*(pResultBinding->is_null) == false))
+    if (*(pResultBinding->is_null) == false)
     {
       int nType = pResultBinding->buffer_type;
       switch (nType)

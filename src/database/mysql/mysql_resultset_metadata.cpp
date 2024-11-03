@@ -2,7 +2,7 @@
 
 #if wxUSE_DATABASE_MYSQL
 
-#include "mysql_com.h"
+#include <mysql.h>
 
 // ctor
 wxMysqlResultSetMetaData::wxMysqlResultSetMetaData(wxMysqlDynamicInterface* pInterface, MYSQL_RES* pMetaData)
