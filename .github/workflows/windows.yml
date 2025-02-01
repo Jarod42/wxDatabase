@@ -1,0 +1,69 @@
+name: windows
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/windows.yml'
+      - '**.cpp'
+      - '**.h'
+      - '**.cmake'
+      - 'CMakeLists.txt'
+  pull_request:
+    paths:
+      - '.github/workflows/windows.yml'
+      - '**.cpp'
+      - '**.h'
+      - '**.cmake'
+      - 'CMakeLists.txt'
+jobs:
+  windows:
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        wx-version: ['v3.2.6']
+
+    steps:
+
+    # WxWidgets
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        repository: wxWidgets/wxWidgets
+        ref: ${{matrix.wx-version}}
+        submodules: recursive
+        path: wxWidgets
+
+    - name: build and install wxWidgets
+      run: |
+        mkdir wxWidgets/build-release
+        cd wxWidgets/build-release
+        cmake .. -DCMAKE_BUILD_TYPE=Release -DwxBUILD_DEBUG_LEVEL=1 -DwxBUILD_MONOLITHIC=0 -DwxBUILD_SAMPLES=SOME -DwxUSE_STL=1
+        cmake --build . --config Release && cmake --build . -t install
+
+    # wxDatabase
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: build wxDatabase
+      run: |
+        cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DENABLE_MYSQL=1 -DENABLE_SQLITE=1 -DENABLE_PGS=1 -DENABLE_TDS=0 -DENABLE_ODBC=0 -DBUILD_SAMPLE=0
+        cmake --build build -j $(nproc)
+
+    # Upload artefact
+    - name: artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: wxDatabase-wx-${{matrix.wx-version}}
+        path: |
+          build/
+          lib/
+          bin/
+
+    - name: artifact # Cannot be with above artifact as no common path :-(
+      uses: actions/upload-artifact@v4
+      with:
+        name: wxwidgets-${{matrix.wx-version}}
+        path: |
+          c:/Program Files (x86)/wxWidgets/**/*
